@@ -1,0 +1,94 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  username  String   @unique
+  password  String
+  firstName String
+  middleName String?
+  lastName  String
+  email     String   @unique
+  phone     String
+
+  tasks     Task[]
+}
+
+model Supplier {
+  id     String   @id @default(uuid())
+  name   String
+  email  String
+  phone  String
+
+  products Product[]
+  shipments Shipment[]
+}
+
+model Product {
+  id         String   @id @default(uuid())
+  name       String
+  type       String
+  supplier   Supplier @relation(fields: [supplierId], references: [id])
+  supplierId String
+
+  stock      Stock[]
+  shipments  Shipment[]
+}
+
+model Stock {
+  id           String   @id @default(uuid())
+  product      Product  @relation(fields: [productId], references: [id])
+  productId    String
+  quantity     Int
+  price        Float
+  sellingPrice Float
+  dateAdded    DateTime
+  status       String
+  cashier      String
+  consumerName String
+}
+
+model Shipment {
+  id                 String   @id @default(uuid())
+  product            Product  @relation(fields: [productId], references: [id])
+  productId          String
+  supplier           Supplier @relation(fields: [supplierId], references: [id])
+  supplierId         String
+  quantity           Int
+  price              Float
+  deliveryDate       DateTime
+  shipperName        String
+  shipmentDestination String
+  shipmentStatus     String
+  lat                Float
+  long               Float
+}
+
+model Task {
+  id           String   @id @default(uuid())
+  user         User     @relation(fields: [userId], references: [id])
+  userId       String
+  taskType     String
+  assignee     String
+  priorityLevel String
+  description  String
+  dueDate      DateTime
+  location     String
+}
+
+model Blog {
+  id           String   @id @default(uuid())
+  image        String
+  title        String
+  description  String
+  createdBy    String
+  createdDate  DateTime
+  year         Int
+}
