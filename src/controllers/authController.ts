@@ -1,0 +1,47 @@
+import { PrismaClient } from '@prisma/client';
+import { Request, Response } from 'express';
+import { hashPassword, comparePassword } from '../utils/hash';
+import { generateToken } from '../utils/jwt';
+
+const prisma = new PrismaClient();
+
+export const signup = async (req: Request, res: Response) => {
+  try {
+    const { username, password, firstName, lastName, email, phone } = req.body;
+    const hashed = await hashPassword(password);
+
+    const user = await prisma.user.create({
+      data: {
+        username,
+        password: hashed,
+        firstName,
+        lastName,
+        email,
+        phone,
+      },
+    });
+
+    const token = generateToken({ id: user.id, username: user.username });
+
+    res.status(201).json({ token });
+  } catch (err) {
+    res.status(400).json({ error: 'Signup failed', details: err });
+  }
+};
+
+export const login = async (req: Request, res: Response) => {
+  try {
+    const { username, password } = req.body;
+    const user:any = await prisma.user.findUnique({ where: { username } });
+
+    if (!user || !(await comparePassword(password, user.password))) {
+      res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    const token = generateToken({ id: user.id, username: user.username });
+
+    res.status(200).json({ token });
+  } catch (err) {
+    res.status(500).json({ error: 'Login failed', details: err });
+  }
+};
