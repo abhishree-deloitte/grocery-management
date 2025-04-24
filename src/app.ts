@@ -14,7 +14,7 @@ import path from 'path';
 
 dotenv.config();
 
-const allowedOrigins = [ process.env.ALLOWED_ORIGIN]
+const allowedOrigins = process.env.ALLOWED_ORIGIN?.split(',') || [];
 
 const app = express();
 app.use(cors({
