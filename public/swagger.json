@@ -1,0 +1,751 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Grocery Management API",
+    "version": "1.0.0",
+    "description": "API documentation for the Grocery Management System"
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "servers": [
+    {
+      "url": "http://localhost:3000/api"
+    }
+  ],
+  "paths": {
+    "/dashboard/insights/orders-by-date": {
+      "get": {
+        "summary": "Get number of orders grouped by date",
+        "tags": [
+          "AdvancedDashboard"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Orders grouped by date returned"
+          }
+        }
+      }
+    },
+    "/dashboard/insights/stock-by-supplier": {
+      "get": {
+        "summary": "Get total stock grouped by supplier",
+        "tags": [
+          "AdvancedDashboard"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stock grouped by supplier returned"
+          }
+        }
+      }
+    },
+    "/dashboard/alerts": {
+      "get": {
+        "summary": "Get critical alerts like low stock or delayed shipments",
+        "tags": [
+          "AdvancedDashboard"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Alert data returned"
+          }
+        }
+      }
+    },
+    "/dashboard/trends/restocks": {
+      "get": {
+        "summary": "Get top restocked products based on frequency",
+        "tags": [
+          "AdvancedDashboard"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Restock trend data returned"
+          }
+        }
+      }
+    },
+    "/dashboard/financials": {
+      "get": {
+        "summary": "Get total inventory cost, revenue, and margin",
+        "tags": [
+          "AdvancedDashboard"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Inventory financial overview returned"
+          }
+        }
+      }
+    },
+    "/auth/signup": {
+      "post": {
+        "summary": "Register a new user",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "username",
+                  "password",
+                  "email",
+                  "phone"
+                ],
+                "properties": {
+                  "username": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "firstName": {
+                    "type": "string"
+                  },
+                  "lastName": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "phone": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User created and token returned"
+          }
+        }
+      }
+    },
+    "/auth/signin": {
+      "post": {
+        "summary": "Log in a user",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "username",
+                  "password"
+                ],
+                "properties": {
+                  "username": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Auth token returned"
+          }
+        }
+      }
+    },
+    "/auth/signout": {
+      "post": {
+        "summary": "Sign out a user",
+        "tags": [
+          "Auth"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Logged out successfully"
+          }
+        }
+      }
+    },
+    "/blogs/all": {
+      "get": {
+        "summary": "Get paginated list of all blogs ordered by year",
+        "tags": [
+          "Blogs"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "pageNumber",
+            "schema": {
+              "type": "integer"
+            },
+            "required": false,
+            "description": "Page number (default: 1)"
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "schema": {
+              "type": "integer"
+            },
+            "required": false,
+            "description": "Number of blogs per page (default: 10)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns list of blogs"
+          }
+        }
+      }
+    },
+    "/blog/{id}": {
+      "get": {
+        "summary": "Get a single blog post by ID",
+        "tags": [
+          "Blogs"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Blog ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Blog post details"
+          },
+          "404": {
+            "description": "Blog not found"
+          }
+        }
+      }
+    },
+    "/dashboard/orders": {
+      "get": {
+        "summary": "Get active and inactive order counts",
+        "tags": [
+          "Dashboard"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "startDate",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "in": "query",
+            "name": "endDate",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "in": "query",
+            "name": "type",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "daily",
+                "weekly",
+                "monthly",
+                "last3months",
+                "last6months"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns active and inactive order summary"
+          }
+        }
+      }
+    },
+    "/dashboard/shipment": {
+      "get": {
+        "summary": "Get shipment status breakdown",
+        "tags": [
+          "Dashboard"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Shipment statistics returned"
+          }
+        }
+      }
+    },
+    "/dashboard/blogs": {
+      "get": {
+        "summary": "Get latest 2 food safety blog entries for widget",
+        "tags": [
+          "Dashboard"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns latest blogs (title, image, description)"
+          }
+        }
+      }
+    },
+    "/inventory": {
+      "post": {
+        "summary": "Add new stock to inventory",
+        "tags": [
+          "Inventory"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "productId",
+                  "quantity",
+                  "price",
+                  "sellingPrice",
+                  "dateAdded",
+                  "status"
+                ],
+                "properties": {
+                  "productId": {
+                    "type": "string"
+                  },
+                  "quantity": {
+                    "type": "integer"
+                  },
+                  "price": {
+                    "type": "number"
+                  },
+                  "sellingPrice": {
+                    "type": "number"
+                  },
+                  "dateAdded": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "status": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Stock added successfully"
+          }
+        }
+      }
+    },
+    "/stockDetails": {
+      "get": {
+        "summary": "Get paginated stock records with filters",
+        "tags": [
+          "Inventory"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "pageNumber",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Page number for pagination"
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Items per page"
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by stock status (e.g., Available, Low)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stock data fetched successfully"
+          }
+        }
+      }
+    },
+    "/inventory/summary": {
+      "get": {
+        "summary": "Get total, low, and out-of-stock summaries",
+        "tags": [
+          "Inventory"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Inventory summary returned"
+          }
+        }
+      }
+    },
+    "/inventory/orders": {
+      "get": {
+        "summary": "Get order breakdown by date (for charts)",
+        "tags": [
+          "Inventory"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "view",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "daily",
+                "weekly",
+                "monthly"
+              ]
+            },
+            "description": "Time range view (default: daily)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Order trend data returned"
+          }
+        }
+      }
+    },
+    "/inventory/newStock": {
+      "get": {
+        "summary": "Get recently added stock items",
+        "tags": [
+          "Inventory"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Latest added stock entries returned"
+          }
+        }
+      }
+    },
+    "/shipmentDetails": {
+      "get": {
+        "summary": "Get paginated shipment details with filters",
+        "tags": [
+          "Shipment"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "pageNumber",
+            "schema": {
+              "type": "integer"
+            },
+            "required": false,
+            "description": "Page number (default: 1)"
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "schema": {
+              "type": "integer"
+            },
+            "required": false,
+            "description": "Number of items per page (default: 10)"
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Filter shipments by status (e.g., Completed, In-Transit)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns shipment details"
+          }
+        }
+      }
+    },
+    "/tasks": {
+      "post": {
+        "summary": "Create a new task for the manager",
+        "tags": [
+          "Tasks"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "taskType",
+                  "assignee",
+                  "priorityLevel",
+                  "description",
+                  "dueDate",
+                  "location"
+                ],
+                "properties": {
+                  "taskType": {
+                    "type": "string",
+                    "enum": [
+                      "Order-Related",
+                      "Stock-Related"
+                    ]
+                  },
+                  "assignee": {
+                    "type": "string"
+                  },
+                  "priorityLevel": {
+                    "type": "string",
+                    "enum": [
+                      "Low",
+                      "Medium",
+                      "High",
+                      "Critical"
+                    ]
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "dueDate": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "location": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Task created successfully"
+          }
+        }
+      }
+    },
+    "/user/profile": {
+      "get": {
+        "summary": "Get the logged-in user's profile",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Profile details fetched successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "username": {
+                          "type": "string"
+                        },
+                        "firstName": {
+                          "type": "string"
+                        },
+                        "lastName": {
+                          "type": "string"
+                        },
+                        "email": {
+                          "type": "string"
+                        },
+                        "phone": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - token missing or invalid"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "AdvancedDashboard",
+      "description": "In-depth dashboard analytics and business insights"
+    },
+    {
+      "name": "Auth",
+      "description": "Authentication and session management"
+    },
+    {
+      "name": "Blogs",
+      "description": "Food safety blog and knowledge center"
+    },
+    {
+      "name": "Dashboard",
+      "description": "Overview endpoints for dashboard cards and widgets"
+    },
+    {
+      "name": "Inventory",
+      "description": "Stock management and inventory insights"
+    },
+    {
+      "name": "Shipment",
+      "description": "Shipment tracking and details"
+    },
+    {
+      "name": "Tasks",
+      "description": "Task creation for inventory or order placement"
+    },
+    {
+      "name": "User",
+      "description": "User profile and account operations"
+    }
+  ]
+}
