@@ -1,8 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
+import { verifyToken } from '../utils/jwt';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'supersecret';
 const prisma = new PrismaClient();
 export interface AuthenticatedRequest extends Request {
   user?: any;
@@ -21,7 +20,7 @@ export const authenticateJWT = async(req: AuthenticatedRequest, res: Response, n
   if (blacklisted) res.status(401).json({ error: 'Token has been invalidated' });
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = verifyToken(token);
     req.user = decoded;
     next();
   } catch (err) {
