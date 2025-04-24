@@ -186,6 +186,3 @@ npm test
 - The backend is focused only on **manager responsibilities**
 - Task creation triggers inventory workflows
 
-
----
-
