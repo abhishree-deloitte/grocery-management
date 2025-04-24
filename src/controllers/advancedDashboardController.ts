@@ -22,7 +22,7 @@ export const getOrdersByDate = async (req: Request, res: Response) => {
       totalOrders,
     }));
 
-    res.json({ status: 200, data: formatted });
+    res.json({ status: 200, data: {orders: formatted} });
   } catch (err) {
     res.status(500).json({ error: "Error getting order breakdown", details: err });
   }

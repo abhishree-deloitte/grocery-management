@@ -92,9 +92,9 @@ export const getInventorySummary = async (req: Request, res: Response) => {
     res.status(200).json({
       status: 200,
       data: {
-        totalStockEntries: total,
-        lowStockEntries: low,
-        outOfStockEntries: out,
+        totalStock: total,
+        lowStock: low,
+        outOfStock: out,
       },
     });
   } catch (err) {
@@ -136,7 +136,9 @@ export const getOrderGraph = async (req: Request, res: Response) => {
 
     res.status(200).json({
       status: 200,
-      data: grouped,
+      data: {
+        orders: grouped,
+      },
     });
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch order data', details: err });
@@ -159,7 +161,9 @@ export const getNewStock = async (req: Request, res: Response) => {
 
     res.status(200).json({
       status: 200,
-      data: recentEntries,
+      data: {
+        newStock: recentEntries,
+      },
     });
   } catch (err) {
     res.status(500).json({

@@ -4,17 +4,17 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-beforeAll(async () => {
-  await prisma.user.deleteMany(); // Clean DB before starting
-});
+// beforeAll(async () => {
+//   await prisma.user.deleteMany(); // Clean DB before starting
+// });
 
 describe('Auth Routes', () => {
   const testUser = {
-    username: 'testuser',
+    username: 'testuser3',
     password: 'test1234',
     firstName: 'Test',
     lastName: 'User',
-    email: 'testuser@example.com',
+    email: 'testuser3@example.com',
     phone: '1234567890'
   };
 
