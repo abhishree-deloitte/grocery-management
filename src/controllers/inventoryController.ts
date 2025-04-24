@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
-import { format } from "date-fns";
+import { format, startOfWeek, startOfMonth } from 'date-fns';
 
 const prisma = new PrismaClient();
 
@@ -17,9 +17,22 @@ export const addStock = async (req: Request, res: Response) => {
       consumerName,
     } = req.body;
 
-    const stock = await prisma.stock.create({
-      data: {
+    // 1. Ensure a stock record exists for the product
+    const stock = await prisma.stock.upsert({
+      where: { productId },
+      update: {
+        totalQty: { increment: quantity },
+      },
+      create: {
         productId,
+        totalQty: quantity,
+      },
+    });
+
+    // 2. Add stock entry
+    await prisma.stockEntry.create({
+      data: {
+        stockId: stock.id,
         quantity,
         price,
         sellingPrice,
@@ -30,142 +43,128 @@ export const addStock = async (req: Request, res: Response) => {
       },
     });
 
-    res.status(201).json({
-      status: 201,
-      message: "Stock created successfully",
-      data: stock,
+    res.status(201).json({ message: 'Stock added successfully' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to add stock', details: err });
+  }
+};
+
+export const getStockDetails = async (req: Request, res: Response) => {
+  try {
+    const pageNumber = parseInt(req.query.pageNumber as string) || 1;
+    const offset = parseInt(req.query.offset as string) || 10;
+
+    const stockEntries = await prisma.stockEntry.findMany({
+      skip: (pageNumber - 1) * offset,
+      take: offset,
+      orderBy: { dateAdded: 'desc' },
+      include: {
+        stock: {
+          include: {
+            product: true,
+          },
+        },
+      },
+    });
+
+    res.status(200).json({
+      status: 200,
+      data: {
+        stock: stockEntries,
+        pageNumber,
+        offset,
+      },
     });
   } catch (err) {
     res.status(500).json({
-      error: "Failed to add stock",
+      error: 'Failed to fetch stock details',
       details: err,
     });
   }
 };
 
-export const getStockDetails = async (req: Request, res: Response) => {
-  const { pageNumber = "1", offset = "10", status } = req.query;
-
-  const page = parseInt(pageNumber as string);
-  const limit = parseInt(offset as string);
-  const skip = (page - 1) * limit;
-
-  try {
-    const stock = await prisma.stock.findMany({
-      where: status ? { status: status as string } : undefined,
-      skip,
-      take: limit,
-      include: {
-        product: { select: { name: true } },
-      },
-    });
-
-    const formatted = stock.map((s) => ({
-      productId: s.productId,
-      productName: s.product.name,
-      consumerName: s.consumerName,
-      supplierName: "N/A", // no supplier in Stock model directly
-      dateOfEntry: s.dateAdded,
-      quantity: s.quantity,
-      price: s.price,
-      sellingPrice: s.sellingPrice,
-      cashier: s.cashier,
-      status: s.status,
-    }));
-
-    res.status(200).json({
-      status: 200,
-      data: { stock: formatted },
-    });
-  } catch (err) {
-    res
-      .status(500)
-      .json({ error: "Failed to fetch stock details", details: err });
-  }
-};
-
 export const getInventorySummary = async (req: Request, res: Response) => {
   try {
-    const totalStock = await prisma.stock.aggregate({
-      _sum: { quantity: true },
-    });
-    const lowStock = await prisma.stock.count({ where: { status: "Low" } });
-    const outOfStock = await prisma.stock.count({
-      where: { status: "OutOfStock" },
-    });
-    const highDemandOrders = 20; // hardcoded for now
+    const total = await prisma.stockEntry.count();
+    const low = await prisma.stockEntry.count({ where: { status: 'Low' } });
+    const out = await prisma.stockEntry.count({ where: { status: 'OutOfStock' } });
 
     res.status(200).json({
       status: 200,
       data: {
-        totalStock: totalStock._sum.quantity || 0,
-        lowStock,
-        outOfStock,
-        highDemandOrders,
+        totalStockEntries: total,
+        lowStockEntries: low,
+        outOfStockEntries: out,
       },
     });
   } catch (err) {
-    res
-      .status(500)
-      .json({ error: "Failed to get inventory summary", details: err });
+    res.status(500).json({
+      error: 'Failed to fetch inventory summary',
+      details: err,
+    });
   }
 };
 
 export const getOrderGraph = async (req: Request, res: Response) => {
-  const { view = "daily" } = req.query;
+  const view = (req.query.view as string) || 'daily';
 
   try {
-    const orders = await prisma.stock.groupBy({
-      by: ["dateAdded"],
-      _count: true,
-      orderBy: { dateAdded: "asc" },
+    const entries = await prisma.stockEntry.findMany({
+      orderBy: { dateAdded: 'asc' },
     });
 
-    const formatted = orders.map((o) => ({
-      date: format(new Date(o.dateAdded), "yyyy-MM-dd"),
-      totalOrders: o._count,
-    }));
+    const grouped: Record<string, number> = {};
+
+    for (const entry of entries) {
+      let key = '';
+
+      switch (view) {
+        case 'weekly':
+          key = format(startOfWeek(entry.dateAdded, { weekStartsOn: 1 }), 'yyyy-MM-dd');
+          break;
+        case 'monthly':
+          key = format(startOfMonth(entry.dateAdded), 'yyyy-MM');
+          break;
+        case 'daily':
+        default:
+          key = format(entry.dateAdded, 'yyyy-MM-dd');
+          break;
+      }
+
+      grouped[key] = (grouped[key] || 0) + entry.quantity;
+    }
 
     res.status(200).json({
       status: 200,
-      data: {
-        orders: formatted,
-      },
+      data: grouped,
     });
   } catch (err) {
-    res
-      .status(500)
-      .json({ error: "Failed to fetch order graph", details: err });
+    res.status(500).json({ error: 'Failed to fetch order data', details: err });
   }
 };
 
 export const getNewStock = async (req: Request, res: Response) => {
   try {
-    const newStock = await prisma.stock.findMany({
-      orderBy: { dateAdded: "desc" },
-      take: 5,
-      select: {
-        productId: true,
-        product: { select: { name: true } },
-        quantity: true,
-        dateAdded: true,
+    const recentEntries = await prisma.stockEntry.findMany({
+      orderBy: { dateAdded: 'desc' },
+      take: 10,
+      include: {
+        stock: {
+          include: {
+            product: true,
+          },
+        },
       },
     });
-
-    const formatted = newStock.map((s) => ({
-      productId: s.productId,
-      productName: s.product.name,
-      quantity: s.quantity,
-      dateAdded: s.dateAdded,
-    }));
 
     res.status(200).json({
       status: 200,
-      data: {
-        newStock: formatted,
-      },
+      data: recentEntries,
     });
   } catch (err) {
-    res.status(500).json({ error: "Failed to fetch new stock", details: err });
+    res.status(500).json({
+      error: 'Failed to fetch new stock entries',
+      details: err,
+    });
   }
 };

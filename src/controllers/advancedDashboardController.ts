@@ -1,28 +1,30 @@
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
-import { format } from "date-fns";
+import { format, startOfDay } from "date-fns";
 
 const prisma = new PrismaClient();
 
-// 1. Orders grouped by date
+// 1. Orders grouped by date (StockEntry)
 export const getOrdersByDate = async (req: Request, res: Response) => {
   try {
-    const data = await prisma.stock.groupBy({
-      by: ["dateAdded"],
-      _count: true,
+    const entries = await prisma.stockEntry.findMany({
       orderBy: { dateAdded: "asc" },
     });
 
-    const formatted = data.map((d) => ({
-      date: format(d.dateAdded, "yyyy-MM-dd"),
-      totalOrders: d._count,
+    const grouped: Record<string, number> = {};
+    entries.forEach((entry) => {
+      const key = format(startOfDay(entry.dateAdded), "yyyy-MM-dd");
+      grouped[key] = (grouped[key] || 0) + entry.quantity;
+    });
+
+    const formatted = Object.entries(grouped).map(([date, totalOrders]) => ({
+      date,
+      totalOrders,
     }));
 
     res.json({ status: 200, data: formatted });
   } catch (err) {
-    res
-      .status(500)
-      .json({ error: "Error getting order breakdown", details: err });
+    res.status(500).json({ error: "Error getting order breakdown", details: err });
   }
 };
 
@@ -38,23 +40,21 @@ export const getStockBySupplier = async (req: Request, res: Response) => {
 
     const grouped = data.reduce((acc, product) => {
       const key = product.supplier.name;
-      const stockQty = product.stock.reduce((sum, s) => sum + s.quantity, 0);
+      const stockQty = product.stock?.reduce((sum, stock) => sum + stock.totalQty, 0) || 0;
       acc[key] = (acc[key] || 0) + stockQty;
       return acc;
     }, {} as Record<string, number>);
 
     res.json({ status: 200, data: grouped });
   } catch (err) {
-    res
-      .status(500)
-      .json({ error: "Error grouping stock by supplier", details: err });
+    res.status(500).json({ error: "Error grouping stock by supplier", details: err });
   }
 };
 
 // 3. Alerts: low stock and delayed shipments
 export const getCriticalAlerts = async (req: Request, res: Response) => {
   try {
-    const lowStock = await prisma.stock.findMany({ where: { status: "Low" } });
+    const lowStock = await prisma.stockEntry.findMany({ where: { status: "Low" } });
     const delayedShipments = await prisma.shipment.findMany({
       where: {
         deliveryDate: { lt: new Date() },
@@ -77,43 +77,43 @@ export const getCriticalAlerts = async (req: Request, res: Response) => {
 // 4. Restock trends
 export const getRestockTrends = async (req: Request, res: Response) => {
   try {
-    const products = await prisma.stock.groupBy({
-      by: ["productId"],
-      _count: true,
-      orderBy: { _count: { productId: "desc" } },
+    const products = await prisma.stockEntry.groupBy({
+      by: ["stockId"],
+      _count: { stockId: true },
+      orderBy: { _count: { stockId: "desc" } },
       take: 5,
     });
 
     const details = await Promise.all(
-      products.map(async (p) => {
-        const product = await prisma.product.findUnique({
-          where: { id: p.productId },
+      products.map(async (entry) => {
+        const stock = await prisma.stock.findUnique({
+          where: { id: entry.stockId },
+          include: { product: true },
         });
+
         return {
-          productId: p.productId,
-          productName: product?.name || "",
-          timesRestocked: p._count,
+          productId: stock?.productId || "",
+          productName: stock?.product?.name || "",
+          timesRestocked: entry._count.stockId,
         };
       })
     );
 
     res.json({ status: 200, data: details });
   } catch (err) {
-    res
-      .status(500)
-      .json({ error: "Error getting restock trends", details: err });
+    res.status(500).json({ error: "Error getting restock trends", details: err });
   }
 };
 
 // 5. Financials: inventory value & margin
 export const getInventoryFinancials = async (req: Request, res: Response) => {
   try {
-    const stocks = await prisma.stock.findMany();
+    const entries = await prisma.stockEntry.findMany();
 
     let cost = 0;
     let revenue = 0;
 
-    stocks.forEach((s) => {
+    entries.forEach((s) => {
       cost += s.price * s.quantity;
       revenue += s.sellingPrice * s.quantity;
     });
@@ -127,8 +127,6 @@ export const getInventoryFinancials = async (req: Request, res: Response) => {
       },
     });
   } catch (err) {
-    res
-      .status(500)
-      .json({ error: "Error calculating financials", details: err });
+    res.status(500).json({ error: "Error calculating financials", details: err });
   }
 };

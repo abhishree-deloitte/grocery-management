@@ -43,17 +43,26 @@ model Product {
 }
 
 model Stock {
+  id        String   @id @default(uuid())
+  product   Product  @relation(fields: [productId], references: [id])
+  productId String   @unique  
+  totalQty  Int      @default(0)
+  entries   StockEntry[]
+}
+
+model StockEntry {
   id           String   @id @default(uuid())
-  product      Product  @relation(fields: [productId], references: [id])
-  productId    String
+  stock        Stock    @relation(fields: [stockId], references: [id])
+  stockId      String
   quantity     Int
   price        Float
   sellingPrice Float
+  cashier      String
+  consumerName String?
   dateAdded    DateTime
   status       String
-  cashier      String
-  consumerName String
 }
+
 
 model Shipment {
   id                 String   @id @default(uuid())
