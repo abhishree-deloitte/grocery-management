@@ -9,12 +9,14 @@ import inventoryRoutes from './routes/inventoryRoutes';
 import taskRoutes from './routes/taskRoutes';
 import blogRoutes from './routes/blogRoutes';
 import advancedDashboardRoutes from './routes/advancedDashboardRoutes';
+import { setupSwagger } from './swagger';
 
 dotenv.config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+setupSwagger(app);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
