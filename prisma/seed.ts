@@ -171,20 +171,6 @@ async function main() {
         "Available",
         "Available",
       ];
-      const cashiers = [
-        "Cashier A",
-        "Cashier B",
-        "Cashier C",
-        "Cashier D",
-        "Cashier E",
-      ];
-      const consumers = [
-        "Customer X",
-        "Customer Y",
-        "Customer Z",
-        "Customer A",
-        "Customer B",
-      ];
 
       // Create or update Stock summary
       const stock = await prisma.stock.upsert({
@@ -207,8 +193,6 @@ async function main() {
           sellingPrice: sellingPrices[index],
           dateAdded: dates[index],
           status: statuses[index],
-          cashier: cashiers[index],
-          consumerName: consumers[index],
         },
       });
     })

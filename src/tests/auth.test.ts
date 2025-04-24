@@ -10,11 +10,11 @@ const prisma = new PrismaClient();
 
 describe('Auth Routes', () => {
   const testUser = {
-    username: 'testuser3',
+    username: 'testuser4',
     password: 'test1234',
     firstName: 'Test',
     lastName: 'User',
-    email: 'testuser3@example.com',
+    email: 'testuser4@example.com',
     phone: '1234567890'
   };
 

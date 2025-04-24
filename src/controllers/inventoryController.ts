@@ -13,8 +13,6 @@ export const addStock = async (req: Request, res: Response) => {
       sellingPrice,
       dateAdded,
       status,
-      cashier,
-      consumerName,
     } = req.body;
 
     // 1. Ensure a stock record exists for the product
@@ -38,8 +36,6 @@ export const addStock = async (req: Request, res: Response) => {
         sellingPrice,
         dateAdded: new Date(dateAdded),
         status,
-        cashier,
-        consumerName,
       },
     });
 

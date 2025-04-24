@@ -20,8 +20,6 @@ describe('Inventory Routes', () => {
         sellingPrice: 30,
         dateAdded: '2024-01-01',
         status: 'Available',
-        cashier: 'Test Cashier',
-        consumerName: 'Test Customer'
       });
 
     expect([201, 500]).toContain(res.statusCode); // 201 if product exists, 500 if not

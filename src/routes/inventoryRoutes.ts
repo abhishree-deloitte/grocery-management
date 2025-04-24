@@ -38,8 +38,6 @@ const router = Router();
  *               - sellingPrice
  *               - dateAdded
  *               - status
- *               - cashier
- *               - consumerName
  *             properties:
  *               productId:
  *                 type: string
@@ -54,10 +52,7 @@ const router = Router();
  *                 format: date
  *               status:
  *                 type: string
- *               cashier:
- *                 type: string
- *               consumerName:
- *                 type: string
+
  *     responses:
  *       201:
  *         description: Stock added successfully
