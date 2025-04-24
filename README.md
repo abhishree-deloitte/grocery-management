@@ -14,6 +14,12 @@ This is a backend system for a Grocery Store Manager to manage stock, tasks, and
 
 ---
 
+### 📊 Grocery Management Schema
+
+![Grocery DB Schema](./grocery_db_schema.png)
+
+---
+
 ## ✅ Features
 
 ### Authentication
