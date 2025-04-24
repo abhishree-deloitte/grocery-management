@@ -103,9 +103,11 @@ async function main() {
 }
 
 main()
-  .then(() => console.log('✅ Seed completed'))
+  .then(() => {
+    console.log('✅ Seed completed');
+  })
   .catch(e => {
-    console.error(e);
+    console.error('❌ Seed error:', e);
     process.exit(1);
   })
   .finally(() => prisma.$disconnect());
