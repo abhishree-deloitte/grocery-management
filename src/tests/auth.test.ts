@@ -4,9 +4,9 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// beforeAll(async () => {
-//   await prisma.user.deleteMany(); // Clean test DB before starting
-// });
+beforeAll(async () => {
+  await prisma.user.deleteMany(); // Clean DB before starting
+});
 
 describe('Auth Routes', () => {
   const testUser = {

@@ -11,7 +11,18 @@ export const getAuthToken = async () => {
     phone: '1234567890',
   };
 
-  await request(app).post('/api/auth/signup').send(user); // idempotent
+  // Try login directly first
+  const login = await request(app).post('/api/auth/signin').send({
+    username: user.username,
+    password: user.password,
+  });
+
+  if (login.body.token) {
+    return login.body.token;
+  }
+
+  // Otherwise, signup then login
+  await request(app).post('/api/auth/signup').send(user);
   const res = await request(app).post('/api/auth/signin').send({
     username: user.username,
     password: user.password,
