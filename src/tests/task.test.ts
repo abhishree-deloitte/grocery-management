@@ -2,8 +2,6 @@ import request from 'supertest';
 import app from '../app';
 import { getAuthToken } from './setup';
 
-jest.setTimeout(15000);
-
 describe('Task Routes', () => {
   let token: string;
 
