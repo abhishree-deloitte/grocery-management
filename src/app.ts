@@ -5,6 +5,7 @@ import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes';
 import dashboardRoutes from './routes/dashboardRoutes';
 import shipmentRoutes from './routes/shipmentRoutes';
+import inventoryRoutes from './routes/inventoryRoutes';
 
 dotenv.config();
 
@@ -16,5 +17,6 @@ app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/shipment', shipmentRoutes); 
+app.use('/api', inventoryRoutes);
 
 export default app;
