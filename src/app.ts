@@ -10,6 +10,7 @@ import taskRoutes from './routes/taskRoutes';
 import blogRoutes from './routes/blogRoutes';
 import advancedDashboardRoutes from './routes/advancedDashboardRoutes';
 import { setupSwagger } from './swagger';
+import path from 'path';
 
 dotenv.config();
 
@@ -26,5 +27,7 @@ app.use('/api', inventoryRoutes);
 app.use('/api', taskRoutes);
 app.use('/api', blogRoutes);
 app.use('/api', advancedDashboardRoutes);
+
+app.use(express.static(path.join(__dirname, '../public')));
 
 export default app;
