@@ -9,7 +9,7 @@
     "start": "node dist/server.js",
     "test": "jest",
     "test:watch": "jest --watchAll",
-    "postinstall": "prisma generate && prisma migrate deploy && ts-node prisma/seed.ts"
+    "postinstall": "prisma generate && prisma migrate deploy"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
