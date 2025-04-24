@@ -68,7 +68,6 @@ async function main() {
   await prisma.blog.createMany({
     data: [
       {
-        id: 'blog-1',
         image: 'https://image.com/blog1.jpg',
         title: 'How to Store Vegetables Safely',
         description: 'A quick guide to storing vegetables.',
@@ -77,7 +76,6 @@ async function main() {
         year: 2023,
       },
       {
-        id: 'blog-2',
         image: 'https://image.com/blog2.jpg',
         title: 'Why FIFO Matters in Grocery',
         description: 'Understanding FIFO in stock rotation.',
