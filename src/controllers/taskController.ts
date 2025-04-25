@@ -1,11 +1,16 @@
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import { AuthenticatedRequest } from "../middlewares/authMiddleware";
+import { taskSchema } from "../validators/taskValidator";
 
 const prisma = new PrismaClient();
 
 export const createTask = async (req: AuthenticatedRequest, res: Response) => {
   try {
+    const { error, value } = taskSchema.validate(req.body);
+    if (error) {
+      res.status(400).json({ error: error.details.map((d) => d.message) });
+    }
     const {
       taskType,
       assignee,
@@ -13,7 +18,7 @@ export const createTask = async (req: AuthenticatedRequest, res: Response) => {
       description,
       dueDate,
       location,
-    } = req.body;
+    } = value;
 
     const task = await prisma.task.create({
       data: {

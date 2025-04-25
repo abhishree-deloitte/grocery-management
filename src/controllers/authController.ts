@@ -2,13 +2,21 @@ import { PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
 import { hashPassword, comparePassword } from "../utils/hash";
 import { generateToken } from "../utils/jwt";
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken";
+import { signupSchema, loginSchema } from "../validators/authValidator";
 
 const prisma = new PrismaClient();
 
 export const signup = async (req: Request, res: Response) => {
   try {
-    const { username, password, firstName, lastName, email, phone } = req.body;
+    const { error, value } = signupSchema.validate(req.body);
+    if (error) {
+      res
+        .status(400)
+        .json({ error: error.details.map((d) => d.message) });
+    }
+
+    const { username, password, firstName, lastName, email, phone } = value;
     const hashed = await hashPassword(password);
 
     const user = await prisma.user.create({
@@ -32,7 +40,13 @@ export const signup = async (req: Request, res: Response) => {
 
 export const login = async (req: Request, res: Response) => {
   try {
-    const { username, password } = req.body;
+    const { error, value } = loginSchema.validate(req.body);
+    if (error) {
+      res
+        .status(400)
+        .json({ error: error.details.map((d) => d.message) });
+    }
+    const { username, password } = value;
     const user: any = await prisma.user.findUnique({ where: { username } });
 
     if (!user || !(await comparePassword(password, user.password))) {

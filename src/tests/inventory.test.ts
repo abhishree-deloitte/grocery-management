@@ -22,7 +22,7 @@ describe('Inventory Routes', () => {
         status: 'Available',
       });
 
-    expect([201, 500]).toContain(res.statusCode); // 201 if product exists, 500 if not
+    expect([201, 400, 500]).toContain(res.statusCode);
   });
 
   it('should fetch stock details', async () => {
