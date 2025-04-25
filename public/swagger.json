@@ -543,7 +543,7 @@
         }
       }
     },
-    "/shipmentDetails": {
+    "/shipment/shipmentDetails": {
       "get": {
         "summary": "Get paginated shipment details with filters",
         "tags": [
